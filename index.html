@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <p>{{count}}</p>
+        <titulo></titulo>
+        <p>De todos count: {{getTodoById(1)}}</p>
+    </div>    
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/vuex@3.1.1/dist/vuex.js"></script>
+
+    <script>
+
+        Vue.component('titulo',{
+            template: //html
+            `
+            <div>
+                <h1>Desde el padre {{count}}</h1>
+                <hijo></hijo>   
+            </div>
+            `,
+            computed: {
+                ...Vuex.mapState(['count'])
+            }
+        });
+        Vue.component('hijo',{
+            template: //html
+            `
+            <div>
+                <button @click="increment">+</button>
+                <button @click="disminuir(2)">-</button>
+                <button @click="cambiar">-</button>
+                <h1>Desde el hijo {{count}}</h1>
+            </div>
+            `,
+            computed: {
+                ...Vuex.mapState(['count'])//accedemos a las variables
+            },
+            methods: {
+                ...Vuex.mapMutations(['increment', 'disminuir']),//accedemos a las funciones
+                ...Vuex.mapActions(['cambiar'])
+            },
+        });
+        const store = new Vuex.Store({
+            state: {
+                count: 10,
+                todos: [
+                    { id: 1, text: '...', done: true },
+                    { id: 2, text: '...', done: false }
+                ]
+            },
+            mutations: {
+                increment(state){
+                    state.count ++;
+                },
+                disminuir(state, n){
+                    state.count -= n;
+                },
+                llenar(state){
+                    console.log('click')
+                    // state.count += a;
+
+                }
+            },
+            getters: {
+                doneTodos: state => {
+                    return state.todos.filter(todo => todo.done);
+                },
+                doneTodosCount: (state, getters) => {
+                    return getters.doneTodos.length
+                },
+                getTodoById: (state) => (id) => {
+                    return state.todos.find(todo => todo.id === id)
+                },
+            },
+            actions: {
+                cambiar: async function({ commit }){
+                   console.log('click')
+                   commit('llenar')
+                }
+            }
+        })
+        new Vue({
+            el: '#app',
+            store: store,
+            computed: {
+                ...Vuex.mapState(['count']),
+                ...Vuex.mapGetters(['doneTodos','doneTodosCount','getTodoById']),
+                ...Vuex.mapMutations(['llenar'])
+
+            },
+            mounted(){
+                this.llenar;
+            }
+
+        })
+    </script>
+</body>
+</html>
